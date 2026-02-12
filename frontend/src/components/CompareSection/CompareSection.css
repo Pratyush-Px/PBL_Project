@@ -1,0 +1,39 @@
+.compare-section {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+}
+
+.compare-btn {
+    background-color: #2196f3;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.8rem 3rem;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(33, 150, 243, 0.3);
+    transition: all 0.2s ease;
+    min-width: 200px;
+}
+
+.compare-btn:hover:not(:disabled) {
+    background-color: #1976d2;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(33, 150, 243, 0.4);
+}
+
+.compare-btn:disabled {
+    background-color: #bdbdbd;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+.loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}

@@ -1,0 +1,5 @@
+Hello World
+This is a sample document.
+Testing OCR accuracy.
+Numbers: 12345
+Date: 2024-01-15

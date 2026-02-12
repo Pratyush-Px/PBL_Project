@@ -1,0 +1,7 @@
+# Invoice & PO Validation System — Dependencies
+opencv-python>=4.5.0
+pytesseract>=0.3.10
+numpy>=1.21.0
+fastapi>=0.100.0
+uvicorn[standard]>=0.22.0
+python-multipart>=0.0.5
