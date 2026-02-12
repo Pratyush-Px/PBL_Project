@@ -1,0 +1,80 @@
+# System Flowchart
+
+This flowchart visualizes the end-to-end process of the Invoice Validation System, from the user interface down to the OCR and comparison logic.
+
+## High-Level Architecture
+
+```mermaid
+graph TD
+    User([User Profile]) -->|Selects & Uploads Files| Frontend[React Frontend]
+    Frontend -->|POST /compare| API[FastAPI Backend]
+    
+    subgraph Backend_Pipeline [Backend Processing Pipeline]
+        direction TB
+        API -->|1. Receive Images| Preproc[Image Preprocessor]
+        Preproc -->|2. Grayscale & Denoise| OCR[OCR Engine]
+        OCR -->|3. Extract Raw Text| Cleaner[Text Cleaner]
+        Cleaner -->|4. Normalize Text| Extractor[Data Extractor]
+        Extractor -->|5. Structured Data| Comparator[Document Comparator]
+        
+        Comparator -->|6. Calculate Match Score| Response[JSON Response]
+    end
+    
+    Response -->|Return Results| Frontend
+    Frontend -->|Render Dashboard| User
+```
+
+## Detailed Component Interaction
+
+This sequence diagram details the function calls and data flow between specific modules in the codebase.
+
+```mermaid
+sequenceDiagram
+    participant FE as Frontend (React)
+    participant API as API (main.py)
+    participant PRE as Preprocessor (preprocessing.py)
+    participant OCR as OCR Engine (ocr_engine.py)
+    participant EXT as Extractor (extractor.py)
+    participant CMP as Comparator (comparator.py)
+
+    FE->>API: POST /compare (order_file, invoice_file)
+    activate API
+    
+    par Process Order
+        API->>PRE: _bytes_to_cv2(order_bytes)
+        API->>PRE: remove_noise(image)
+        PRE-->>API: processed_image
+        API->>OCR: extract_text(processed_image)
+        OCR-->>API: raw_text
+        API->>EXT: extract(raw_text, type="order")
+        EXT-->>API: order_data (JSON)
+    and Process Invoice
+        API->>PRE: _bytes_to_cv2(invoice_bytes)
+        API->>PRE: remove_noise(image)
+        PRE-->>API: processed_image
+        API->>OCR: extract_text(processed_image)
+        OCR-->>API: raw_text
+        API->>EXT: extract(raw_text, type="invoice")
+        EXT-->>API: invoice_data (JSON)
+    end
+
+    API->>CMP: compare(order_data, invoice_data)
+    activate CMP
+    CMP->>CMP: Compare Vendor
+    CMP->>CMP: Compare Total Amount
+    CMP->>CMP: Match Line Items (Fuzzy Search)
+    CMP->>CMP: Calculate Match %
+    CMP-->>API: comparison_result (Match/Mismatch, Differences)
+    deactivate CMP
+
+    API-->>FE: FullComparisonResponse (Order + Invoice + Diff)
+    deactivate API
+
+    FE->>FE: Display Results & Progress Bar
+```
+
+## Key Files
+- **Frontend**: [src/App.jsx](file:///c:/Users/praty/Documents/PBL/test_copy/frontend/src/App.jsx), [src/api/api.js](file:///c:/Users/praty/Documents/PBL/test_copy/frontend/src/api/api.js)
+- **Backend API**: [api/main.py](file:///c:/Users/praty/Documents/PBL/test_copy/backend/api/main.py)
+- **OCR Logic**: `src/preprocessing.py`, `src/ocr_engine.py`
+- **Business Logic**: `src/extractor.py`, [src/comparator.py](file:///c:/Users/praty/Documents/PBL/test_copy/backend/src/comparator.py)

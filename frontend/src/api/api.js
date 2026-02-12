@@ -1,4 +1,4 @@
-const API_URL = "https://pbl-project-backend.onrender.com"; // Adjust if needed
+const API_URL = "http://localhost:8000"; // Adjust if needed
 
 export const compareDocuments = async (orderFile, invoiceFile) => {
     const formData = new FormData();

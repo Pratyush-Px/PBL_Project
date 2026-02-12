@@ -1,0 +1,87 @@
+# Invoice Validation System - Technical Explanation
+
+This document provides a detailed breakdown of the Invoice vs Purchase Order Validation System. It covers the workflow, code structure, algorithmic logic, and mathematical models used to process and compare documents.
+
+## 1. High-Level Workflow
+
+The system follows a linear pipeline:
+1.  **Upload**: User uploads an Invoice and a Purchase Order (images/scans) via the React frontend.
+2.  **API Request**: The frontend sends both files to the `POST /compare` endpoint.
+3.  **Processing (Parallel)**:
+    *   **Pre-processing**: Images are cleaned to remove noise and enhance text.
+    *   **OCR**: Tesseract OCR extracts raw text from the images.
+    *   **Extraction**: Regex patterns parse the raw text into structured JSON (Vendor, Date, Items, Totals).
+4.  **Comparison**: The two JSON objects are compared field-by-field.
+5.  **Response**: The API returns a report with a "Match/Mismatch" status, a confidence score, and a list of specific discrepancies.
+
+## 2. Code Structure & Responsibilities
+
+| File Path | Role | Key Responsibility |
+| :--- | :--- | :--- |
+| [frontend/src/App.jsx](file:///c:/Users/praty/Documents/PBL/test_copy/frontend/src/App.jsx) | UI Logic | Manages file state, calls API, displays results. |
+| [backend/api/main.py](file:///c:/Users/praty/Documents/PBL/test_copy/backend/api/main.py) | API Entrypoint | FastAPI app, defines endpoints, orchestrates the pipeline. |
+| [backend/src/preprocessing.py](file:///c:/Users/praty/Documents/PBL/test_copy/backend/src/preprocessing.py) | Image Cleanup | Uses OpenCV to prepare images for OCR. |
+| [backend/src/ocr_engine.py](file:///c:/Users/praty/Documents/PBL/test_copy/backend/src/ocr_engine.py) | Text Extraction | Wrapper around PyTesseract (Tesseract OCR). |
+| [backend/src/extractor.py](file:///c:/Users/praty/Documents/PBL/test_copy/backend/src/extractor.py) | Logic Parser | regex-based engine to turn raw text into structured data. |
+| [backend/src/comparator.py](file:///c:/Users/praty/Documents/PBL/test_copy/backend/src/comparator.py) | Business Logic | Compares structured data and calculates match scores. |
+
+## 3. Algorithmic Logic
+
+### A. Image Preprocessing ([preprocessing.py](file:///c:/Users/praty/Documents/PBL/test_copy/backend/src/preprocessing.py))
+Goal: Make text stand out against the background.
+*   **Grayscale**: Converts color images to black & white (`cv2.cvtColor`). Tesseract works best on grayscale.
+*   **Noise Reduction**: Uses **Bilateral Filtering** (`cv2.bilateralFilter`).
+    *   *Why?* unlike a standard Gaussian blur, bilateral filtering smooths surfaces while preserving edges (text characters).
+*   **Adaptive Thresholding**: (`cv2.adaptiveThreshold`)
+    *   *Why?* Converts grayscale to binary (pure black/white) based on local pixel neighborhoods. This handles uneven lighting/shadows better than a global threshold.
+
+### B. OCR Engine ([ocr_engine.py](file:///c:/Users/praty/Documents/PBL/test_copy/backend/src/ocr_engine.py))
+*   **Tool**: Tesseract OCR (v5+).
+*   **Configuration**: `--psm 6` (Page Segmentation Mode).
+    *   *Logic*: PSM 6 assumes a single uniform block of text. This is robust for standard invoices but might struggle with complex multi-column layouts like newspapers.
+
+### C. Data Extraction ([extractor.py](file:///c:/Users/praty/Documents/PBL/test_copy/backend/src/extractor.py))
+Uses **Regular Expressions (Regex)** to mine data.
+*   **Vendor**: Looks for "Vendor:", "From:", or takes the first non-keyword line.
+*   **Dates**: Matches patterns like `MM/DD/YYYY`, `DD-Mon-YYYY`, etc.
+*   **Line Items**: Looks for repeating lines with 3-4 numeric columns (Quantity, Unit Price, Total).
+    *   *Regex*: `^(.+?)\s+(\d+)\s+(\d+\.\d{2})\s+(\d+\.\d{2})$`
+    *   *Logic*: Captures text followed by numbers. Implicitly handles widely spaced columns.
+
+### D. Comparison Logic ([comparator.py](file:///c:/Users/praty/Documents/PBL/test_copy/backend/src/comparator.py))
+Matches fields from the Order against the Invoice.
+*   **Vendor**: Case-insensitive string match.
+*   **Amounts**: Numeric comparison with a tolerance (epsilon) of `0.01` to handle floating-point errors.
+    *   `abs(order_val - invoice_val) <= 0.01`
+*   **Line Items**: finding corresponding items is hard because names might differ (e.g., "Widget A" vs "Widget A (Blue)").
+    *   **Logic**: Iterates through order items and finds the "best match" in the invoice items using **Fuzzy Matching**.
+
+## 4. Mathematical Models
+
+### A. Fuzzy Matching
+How do we know "Product X" is the same as "Product X - Large"?
+*   **Algorithm**: `difflib.SequenceMatcher` (Python's built-in).
+*   **Metric**: Ratcliff/Obershelp pattern matching.
+*   **Formula**: $2 * M / T$
+    *   $M$ = Number of matching characters.
+    *   $T$ = Total characters in both strings.
+*   **Threshold**: We use a similarity ratio of **0.7 (70%)**. If the score is > 0.7, we consider them the same item and proceed to compare their quantities/prices.
+
+### B. Match Score Calculation
+How do we determine the "85%" match score?
+*   **Formula**:
+    $$ Score = \max(0, 100 - (\frac{\text{Mismatches}}{\text{Total Checks}} \times 100)) $$
+*   **Total Checks**: $2$ (Vendor + Total Amount) + $N$ (Number of line items).
+*   **Mismatches**: Count of fields that failed validation.
+*   *Example*:
+    *   Vendor: OK
+    *   Total: OK
+    *   Item 1: OK
+    *   Item 2: Price Mismatch
+    *   Total Checks = 4. Mismatches = 1.
+    *   Score = $100 - (1/4 * 100) = 75\%$.
+
+## 5. Key Design Decisions
+1.  **Statelessness**: The backend interprets images on-the-fly (in memory) using `cv2.imdecode` and does not save files to disk. This improves speed and privacy.
+2.  **No ML Models**: We use rule-based parsing instead of AI models (like LayoutLM). This makes the system fast, predictable, and easy to run on standard CPUs without GPUs.
+3.  **Modular Pipeline**: You can swap out the OCR engine or the Preprocessor without breaking the Extraction logic.
