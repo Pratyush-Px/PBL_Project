@@ -68,7 +68,14 @@ function App() {
           isLoading={isLoading}
         />
 
-        {comparisonResult && (
+        {isLoading && (
+          <div className="loading-container">
+            <div className="spinner"></div>
+            <p>AI analyzing documents...</p>
+          </div>
+        )}
+
+        {comparisonResult && !isLoading && (
           <ResultsSection result={comparisonResult} />
         )}
 

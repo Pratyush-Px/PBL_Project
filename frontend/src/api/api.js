@@ -1,9 +1,9 @@
-const API_URL = "https://pbl-projectbackend.onrender.com"; // Adjust if needed
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export const compareDocuments = async (orderFile, invoiceFile) => {
     const formData = new FormData();
-    formData.append("order_file", orderFile);
-    formData.append("invoice_file", invoiceFile);
+    formData.append("purchase_order", orderFile);
+    formData.append("invoice", invoiceFile);
 
     try {
         const response = await fetch(`${API_URL}/compare`, {

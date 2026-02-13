@@ -1,58 +1,141 @@
 import React from 'react';
-import DifferencesTable from '../DifferencesTable/DifferencesTable';
-import DocumentViewer from '../DocumentViewer/DocumentViewer';
 import './ResultsSection.css';
 
 const ResultsSection = ({ result }) => {
     if (!result) return null;
 
-    const { comparison, order_data, invoice_data } = result;
+    const {
+        summary,
+        line_item_analysis,
+        confidence_score,
+        risk_score,
+        risk_reason,
+        processing_time_ms,
+        duplicate
+    } = result;
 
-    // Safeguard against missing comparison data
-    if (!comparison) return null;
+    // --- Helpers for Styling ---
+    const getConfidenceColor = (score) => {
+        if (!score) return 'gray';
+        if (score > 85) return 'green';
+        if (score >= 70) return 'yellow';
+        return 'red';
+    };
 
-    const isMatch = comparison.status === "Match";
-    const matchPercentage = comparison.match_percentage || 0;
+    const getRiskColor = (score) => {
+        if (score <= 30) return 'green';
+        if (score <= 70) return 'orange';
+        return 'red';
+    };
 
-    const downloadReport = () => {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(result, null, 2));
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "comparison_report.json");
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
+    const getStatusColor = (status) => {
+        switch (status?.toLowerCase()) {
+            case 'match': return 'green';
+            case 'quantity_mismatch': return 'orange';
+            case 'price_mismatch': return 'orange';
+            case 'missing_in_po': return 'red';
+            case 'extra_in_invoice': return 'red';
+            case 'extra_in_po': return 'blue';
+            default: return 'gray';
+        }
     };
 
     return (
-        <div className="results-section">
-            <div className="results-header">
-                <h2>Comparison Results</h2>
-                <button className="download-btn" onClick={downloadReport}>
-                    Download Report ⬇️
-                </button>
-            </div>
-
-            <div className="status-card">
-                <div className={`status-badge ${isMatch ? 'match' : 'mismatch'}`}>
-                    {comparison.status}
+        <div className="results-container">
+            {/* 5️⃣ Duplicate Warning */}
+            {duplicate && (
+                <div className="duplicate-banner">
+                    ⚠️ Document previously processed (served from cache)
                 </div>
-                <div className="match-percentage">
-                    <span>Match Score: {matchPercentage}%</span>
-                    <div className="progress-bar-bg">
-                        <div
-                            className={`progress-bar-fill ${isMatch ? 'high' : 'low'}`}
-                            style={{ width: `${matchPercentage}%` }}
-                        ></div>
+            )}
+
+            <div className="metrics-grid">
+                {/* 1️⃣ Structured Summary */}
+                <div className="card summary-card">
+                    <h3>Comparison Summary</h3>
+                    <div className="summary-row">
+                        <span>Invoice Total:</span>
+                        <strong>{summary?.invoice_total?.toFixed(2) ?? 'N/A'}</strong>
+                    </div>
+                    <div className="summary-row">
+                        <span>PO Total:</span>
+                        <strong>{summary?.po_total?.toFixed(2) ?? 'N/A'}</strong>
+                    </div>
+                    <div className="summary-row">
+                        <span>Difference:</span>
+                        <strong className={summary?.difference === 0 ? 'text-green' : 'text-red'}>
+                            {summary?.difference?.toFixed(2) ?? 'N/A'}
+                        </strong>
+                    </div>
+                    <div className={`status-badge ${summary?.status === 'match' ? 'bg-green' : 'bg-red'}`}>
+                        {summary?.status?.toUpperCase()}
+                    </div>
+                </div>
+
+                {/* 3️⃣ Confidence & 4️⃣ Risk */}
+                <div className="card scores-card">
+                    <h3>AI Analysis</h3>
+
+                    <div className="score-item">
+                        <span>Confidence Score</span>
+                        <div className={`badge ${getConfidenceColor(confidence_score)}`}>
+                            {confidence_score ? `${confidence_score}%` : 'N/A'}
+                        </div>
+                    </div>
+
+                    <div className="score-item">
+                        <span>Risk Score</span>
+                        <div className={`badge ${getRiskColor(risk_score)}`}>
+                            {risk_score}/100
+                        </div>
+                    </div>
+
+                    {risk_reason && (
+                        <div className="risk-reason">
+                            <strong>Risk Factor:</strong> {risk_reason}
+                        </div>
+                    )}
+
+                    {/* 6️⃣ Processing Time */}
+                    <div className="processing-time">
+                        ⏱ Processed in {processing_time_ms?.toFixed(0)} ms
                     </div>
                 </div>
             </div>
 
-            <DifferencesTable differences={comparison.differences} />
-
-            <div className="json-viewers">
-                <DocumentViewer title="Extracted Order Data" data={order_data} />
-                <DocumentViewer title="Extracted Invoice Data" data={invoice_data} />
+            {/* 2️⃣ Line Item Analysis Table */}
+            <div className="card table-card">
+                <h3>Line Item Analysis</h3>
+                <div className="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Inv Qty</th>
+                                <th>PO Qty</th>
+                                <th>Inv Price</th>
+                                <th>PO Price</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {line_item_analysis?.map((item, index) => (
+                                <tr key={index} className={`row-${getStatusColor(item.status)}`}>
+                                    <td>{item.description}</td>
+                                    <td>{item.invoice_qty ?? '-'}</td>
+                                    <td>{item.po_qty ?? '-'}</td>
+                                    <td>{item.invoice_price?.toFixed(2) ?? '-'}</td>
+                                    <td>{item.po_price?.toFixed(2) ?? '-'}</td>
+                                    <td>
+                                        <span className={`status-tag ${getStatusColor(item.status)}`}>
+                                            {item.status.replace(/_/g, ' ')}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
