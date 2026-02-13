@@ -1,4 +1,0 @@
-Invoice Number: INV-2024-001
-Customer: John Smith
-Total Amount: $150.00
-Tax: $12.50

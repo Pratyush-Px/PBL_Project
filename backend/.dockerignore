@@ -5,8 +5,9 @@ venv
 .gitignore
 test_data
 results
-evaluation/tests
+static
 *.pyc
 *.pyo
 *.pyd
+*.md
 .DS_Store

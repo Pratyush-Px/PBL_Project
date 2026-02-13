@@ -1,62 +1,132 @@
-import argparse
-import os
-import sys
-from src.preprocessing import ImagePreprocessor
-from src.ocr_engine import OCREngine
-from src.utils import clean_text, save_to_file
+from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
 
-def main():
-    parser = argparse.ArgumentParser(description="High-Accuracy OCR System")
-    parser.add_argument('image_path', help="Path to the input image")
-    parser.add_argument('--output', '-o', help="Path to save the output text file", default=None)
-    parser.add_argument('--preprocess', '-p', choices=['standard', 'threshold', 'none'], default='standard',
-                        help="Preprocessing mode: standard (noise reduction), threshold (adaptive thresholding), none")
-    parser.add_argument('--psm', type=int, default=6, help="Tesseract PSM mode (default 6: Uniform block)")
-    parser.add_argument('--whitelist', help="whitelist characters (e.g. '0123456789')", default=None)
-    parser.add_argument('--verbose', '-v', action='store_true', help="Enable verbose output")
-    
-    args = parser.parse_args()
+from database import engine, get_db
+from models import Base, DocumentType
+from services.gemini_service import extract_document
+from services.comparison_service import compare_documents
+from services.risk_service import calculate_risk
+from utils.timing import timer
 
-    if not os.path.exists(args.image_path):
-        print(f"Error: Image file not found at {args.image_path}")
-        sys.exit(1)
+# =========================
+# AUTO-CREATE TABLES
+# =========================
+Base.metadata.create_all(bind=engine)
 
-    print(f"Processing {args.image_path}...")
+# =========================
+# FASTAPI APP
+# =========================
+app = FastAPI(
+    title="Invoice & PO Validator",
+    description="Gemini-powered document extraction, comparison, and risk scoring API",
+    version="2.0.0",
+)
 
-    # 1. Preprocessing
-    preprocessor = ImagePreprocessor()
-    if args.preprocess == 'none':
-        image = preprocessor.load_image(args.image_path)
-        processed_image = preprocessor.to_grayscale(image) # Tesseract prefers grayscale anyway
-        print("Skipping advanced preprocessing.")
-    else:
-        print(f"Applying {args.preprocess} preprocessing...")
-        processed_image = preprocessor.preprocess(args.image_path, mode=args.preprocess)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-    # 2. OCR Extraction
-    print(f"Running OCR (PSM: {args.psm})...")
-    ocr = OCREngine()
-    try:
-        raw_text = ocr.extract_text(processed_image, psm=args.psm, whitelist=args.whitelist)
-    except Exception as e:
-        print(f"OCR Error: {e}")
-        print("Ensure Tesseract is installed and in your PATH.")
-        sys.exit(1)
 
-    # 3. Post-processing
-    cleaned_text = clean_text(raw_text)
+# =========================
+# GET /health
+# =========================
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
 
-    # Output
-    print("\n--- Extracted Text ---\n")
-    print(cleaned_text)
-    print("\n----------------------\n")
 
-    if args.output:
-        save_to_file(cleaned_text, args.output)
-    elif args.verbose:
-        # If no output file, maybe save to a default one? 
-        # Requirement said "Option to save extracted text to a .txt file", so if not provided, just print.
-        pass
+# =========================
+# POST /extract
+# =========================
+@app.post("/extract")
+async def extract(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+):
+    """
+    Extract structured data from an invoice or purchase order.
+    Returns extracted fields, source (cache/gemini), duplicate flag, and timing.
+    """
+    file_bytes = await file.read()
+    content_type = file.content_type or "application/octet-stream"
+    filename = file.filename or "unknown"
 
-if __name__ == "__main__":
-    main()
+    # Determine document type from filename hint
+    doc_type = DocumentType.purchase_order if "po" in filename.lower() or "purchase" in filename.lower() else DocumentType.invoice
+
+    with timer() as t:
+        result = extract_document(
+            file_bytes=file_bytes,
+            filename=filename,
+            content_type=content_type,
+            document_type=doc_type,
+            db=db,
+        )
+
+    return {
+        "status": "success",
+        "source": result["source"],
+        "duplicate": result["duplicate"],
+        "extracted_data": result["data"],
+        "extraction_time_ms": t["elapsed_ms"],
+    }
+
+
+# =========================
+# POST /compare
+# =========================
+@app.post("/compare")
+async def compare(
+    invoice: UploadFile = File(...),
+    purchase_order: UploadFile = File(...),
+    db: Session = Depends(get_db),
+):
+    """
+    Extract both documents, compare totals and line items,
+    and return a structured comparison with risk scoring.
+    """
+    with timer() as total_timer:
+        # --- Extract invoice ---
+        inv_bytes = await invoice.read()
+        inv_result = extract_document(
+            file_bytes=inv_bytes,
+            filename=invoice.filename or "invoice",
+            content_type=invoice.content_type or "application/octet-stream",
+            document_type=DocumentType.invoice,
+            db=db,
+        )
+
+        # --- Extract purchase order ---
+        po_bytes = await purchase_order.read()
+        po_result = extract_document(
+            file_bytes=po_bytes,
+            filename=purchase_order.filename or "purchase_order",
+            content_type=purchase_order.content_type or "application/octet-stream",
+            document_type=DocumentType.purchase_order,
+            db=db,
+        )
+
+        # --- Compare ---
+        comparison = compare_documents(inv_result["data"], po_result["data"])
+
+        # --- Risk scoring ---
+        risk = calculate_risk(
+            summary=comparison["summary"],
+            line_item_analysis=comparison["line_item_analysis"],
+            invoice_currency=inv_result["data"].get("currency"),
+            po_currency=po_result["data"].get("currency"),
+        )
+
+    return {
+        "summary": comparison["summary"].model_dump(),
+        "line_item_analysis": [item.model_dump() for item in comparison["line_item_analysis"]],
+        "confidence_score": comparison["confidence_score"],
+        "risk_score": risk.risk_score,
+        "risk_reason": risk.risk_reason,
+        "processing_time_ms": total_timer["elapsed_ms"],
+    }
