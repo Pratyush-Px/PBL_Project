@@ -1,71 +1,106 @@
 .results-container {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 2rem;
     width: 100%;
     margin-top: 1rem;
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .duplicate-banner {
-    background-color: #fff3cd;
-    color: #856404;
+    background-color: #fffbeb;
+    color: #92400e;
     padding: 1rem;
-    border-radius: 8px;
-    border: 1px solid #ffeeba;
+    border-radius: 12px;
+    border: 1px solid #fcd34d;
     text-align: center;
-    font-weight: bold;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .metrics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
 }
 
 .card {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f1f5f9;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
 }
 
 .card h3 {
     margin-top: 0;
-    margin-bottom: 1rem;
-    color: #111827;
+    margin-bottom: 1.5rem;
+    color: #1e293b;
     font-size: 1.1rem;
-    border-bottom: 2px solid #f3f4f6;
-    padding-bottom: 0.5rem;
+    font-weight: 600;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 1rem;
+    letter-spacing: 0.01em;
 }
 
 /* Summary Card */
 .summary-row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.75rem;
-    color: #4b5563;
+    margin-bottom: 1rem;
+    color: #475569;
+    font-size: 0.95rem;
+}
+
+.summary-row strong {
+    color: #0f172a;
+    font-weight: 600;
 }
 
 .status-badge {
     text-align: center;
-    padding: 0.5rem;
-    border-radius: 6px;
-    font-weight: bold;
-    margin-top: 1rem;
-    color: white;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    letter-spacing: 0.02em;
+    font-size: 0.9rem;
 }
 
 .bg-green {
-    background-color: #10b981;
+    background-color: #dcfce7;
+    color: #166534;
 }
 
 .bg-red {
-    background-color: #ef4444;
+    background-color: #fee2e2;
+    color: #991b1b;
 }
 
 .text-green {
-    color: #10b981;
+    color: #16a34a;
 }
 
 .text-red {
@@ -77,24 +112,31 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed #e2e8f0;
+}
+
+.score-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
 }
 
 .badge {
-    padding: 0.25rem 0.75rem;
+    padding: 0.35rem 1rem;
     border-radius: 9999px;
-    font-weight: bold;
-    font-size: 0.9rem;
+    font-weight: 600;
+    font-size: 0.85rem;
 }
 
 .badge.green {
-    background-color: #d1fae5;
-    color: #065f46;
+    background-color: #dcfce7;
+    color: #15803d;
 }
 
 .badge.yellow {
-    background-color: #fef3c7;
-    color: #92400e;
+    background-color: #fef9c3;
+    color: #854d0e;
 }
 
 .badge.orange {
@@ -108,24 +150,28 @@
 }
 
 .risk-reason {
-    font-size: 0.85rem;
-    color: #ae3636;
-    background: #fff5f5;
-    padding: 0.5rem;
-    border-radius: 6px;
-    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #b91c1c;
+    background: #fef2f2;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+    border-left: 4px solid #ef4444;
 }
 
 .processing-time {
-    margin-top: 1rem;
+    margin-top: 1.5rem;
     font-size: 0.8rem;
-    color: #9ca3af;
+    color: #94a3b8;
     text-align: right;
+    font-style: italic;
 }
 
 /* Table Card */
 .table-responsive {
     overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
 }
 
 table {
@@ -135,32 +181,38 @@ table {
 }
 
 th {
-    background-color: #f9fafb;
+    background-color: #f8fafc;
     text-align: left;
-    padding: 0.75rem;
+    padding: 1rem;
     font-weight: 600;
-    color: #374151;
-    border-bottom: 1px solid #e5e7eb;
+    color: #475569;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
 }
 
 td {
-    padding: 0.75rem;
-    border-bottom: 1px solid #e5e7eb;
-    color: #1f2937;
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+}
+
+tr:last-child td {
+    border-bottom: none;
 }
 
 /* Status Tags in Table */
 .status-tag {
     font-size: 0.75rem;
-    padding: 2px 8px;
-    border-radius: 4px;
+    padding: 4px 10px;
+    border-radius: 6px;
     text-transform: uppercase;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0.02em;
 }
 
 .status-tag.green {
-    color: #065f46;
-    background-color: #d1fae5;
+    color: #15803d;
+    background-color: #dcfce7;
 }
 
 .status-tag.orange {
@@ -183,13 +235,15 @@ td {
     background-color: #f3f4f6;
 }
 
-/* Row Highlighting (optional, minimal for cleanliness) */
+/* Row Highlighting */
 tr.row-red {
-    background-color: #fff1f2;
+    background-color: #fef2f2;
 }
 
 tr.row-orange {
     background-color: #fff7ed;
 }
 
-/* Green rows usually left white for clean readability, but can add if requested */
+tr:hover {
+    background-color: #f8fafc;
+}

@@ -5,30 +5,32 @@
 }
 
 .compare-btn {
-    background-color: #2196f3;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
     color: white;
     font-size: 1.1rem;
     font-weight: 600;
-    padding: 0.8rem 3rem;
+    padding: 14px 40px;
     border: none;
-    border-radius: 50px;
+    border-radius: 9999px;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(33, 150, 243, 0.3);
-    transition: all 0.2s ease;
-    min-width: 200px;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 240px;
+    letter-spacing: 0.5px;
 }
 
 .compare-btn:hover:not(:disabled) {
-    background-color: #1976d2;
     transform: translateY(-2px);
-    box-shadow: 0 6px 8px rgba(33, 150, 243, 0.4);
+    box-shadow: 0 12px 25px rgba(37, 99, 235, 0.4);
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
 }
 
 .compare-btn:disabled {
-    background-color: #bdbdbd;
+    background: #cbd5e1;
     cursor: not-allowed;
     box-shadow: none;
     transform: none;
+    color: #94a3b8;
 }
 
 .loader {

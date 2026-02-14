@@ -1,9 +1,30 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import './UploadCard.css';
 
 const UploadCard = ({ title, file, onFileSelect, onRemoveFile }) => {
     const fileInputRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState(null);
+
+    // Create and revoke object URL for image preview
+    useEffect(() => {
+        if (!file) {
+            setPreviewUrl(null);
+            return;
+        }
+
+        let objectUrl;
+        if (file.type.startsWith('image/')) {
+            objectUrl = URL.createObjectURL(file);
+            setPreviewUrl(objectUrl);
+        } else {
+            setPreviewUrl(null);
+        }
+
+        return () => {
+            if (objectUrl) URL.revokeObjectURL(objectUrl);
+        };
+    }, [file]);
 
     const handleDragOver = (e) => {
         e.preventDefault();
@@ -24,7 +45,9 @@ const UploadCard = ({ title, file, onFileSelect, onRemoveFile }) => {
     };
 
     const handleClick = () => {
-        fileInputRef.current.click();
+        if (!file) {
+            fileInputRef.current.click();
+        }
     };
 
     const handleFileChange = (e) => {
@@ -34,6 +57,9 @@ const UploadCard = ({ title, file, onFileSelect, onRemoveFile }) => {
         }
     };
 
+    // Determine icon based on file type
+    const isPdf = file?.type === 'application/pdf';
+
     return (
         <div className="upload-card">
             <h3>{title}</h3>
@@ -42,33 +68,44 @@ const UploadCard = ({ title, file, onFileSelect, onRemoveFile }) => {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                onClick={!file ? handleClick : undefined}
+                onClick={handleClick}
             >
                 <input
                     type="file"
                     ref={fileInputRef}
                     onChange={handleFileChange}
                     style={{ display: 'none' }}
+                    accept="image/*,application/pdf"
                 />
 
                 {file ? (
                     <div className="file-info">
-                        <div className="file-icon">📄</div>
-                        <p className="file-name">{file.name}</p>
                         <button
                             className="remove-btn"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 onRemoveFile();
                             }}
+                            title="Remove file"
                         >
                             ×
                         </button>
+
+                        {previewUrl ? (
+                            <img src={previewUrl} alt="Preview" className="preview-image" />
+                        ) : (
+                            <div className="file-icon">
+                                {isPdf ? '📄' : '📁'}
+                            </div>
+                        )}
+
+                        <p className="file-name">{file.name}</p>
                     </div>
                 ) : (
                     <div className="placeholder">
                         <span className="upload-icon">☁️</span>
-                        <p>Drag & Drop or Click to Upload</p>
+                        <p><strong>Click to upload</strong> or drag and drop</p>
+                        <p className="upload-hint">PDF or Images (MAX. 10MB)</p>
                     </div>
                 )}
             </div>
