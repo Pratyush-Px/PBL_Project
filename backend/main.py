@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from database import engine, get_db
-from models import Base, DocumentType
+from models import Base, DocumentType, ComparisonResult
 from services.gemini_service import extract_document
 from services.comparison_service import compare_documents
 from services.risk_service import calculate_risk
@@ -129,4 +129,52 @@ async def compare(
         "risk_score": risk.risk_score,
         "risk_reason": risk.risk_reason,
         "processing_time_ms": total_timer["elapsed_ms"],
+    }
+
+
+# =========================
+# GET /results
+# =========================
+@app.get("/results")
+def get_results(db: Session = Depends(get_db)):
+    """Return all stored comparison results (newest first)."""
+    rows = (
+        db.query(ComparisonResult)
+        .order_by(ComparisonResult.created_at.desc())
+        .all()
+    )
+    return [
+        {
+            "id": str(r.id),
+            "order_id": r.order_id,
+            "match_status": r.match_status,
+            "risk_score": r.risk_score,
+            "confidence_score": r.confidence_score,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+        }
+        for r in rows
+    ]
+
+
+# =========================
+# GET /results/{result_id}
+# =========================
+@app.get("/results/{result_id}")
+def get_result_detail(result_id: str, db: Session = Depends(get_db)):
+    """Return full details for a single comparison result."""
+    row = (
+        db.query(ComparisonResult)
+        .filter(ComparisonResult.id == result_id)
+        .first()
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="Result not found")
+    return {
+        "id": str(row.id),
+        "order_id": row.order_id,
+        "match_status": row.match_status,
+        "risk_score": row.risk_score,
+        "confidence_score": row.confidence_score,
+        "created_at": row.created_at.isoformat() if row.created_at else None,
+        "result_json": row.result_json,
     }

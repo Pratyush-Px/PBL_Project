@@ -1,6 +1,6 @@
 # models.py
 import uuid
-from sqlalchemy import Column, String, DateTime, Enum
+from sqlalchemy import Column, String, Integer, Float, DateTime, Enum
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.sql import func
 import enum
@@ -38,6 +38,33 @@ class ExtractedDocument(Base):
 
     # Which model produced this output
     model_used = Column(String, nullable=False)
+
+    # Audit timestamp
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+# -------------------------
+# TABLE: comparison_results
+# -------------------------
+class ComparisonResult(Base):
+    __tablename__ = "comparison_results"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+
+    # Order identifier derived from filenames (e.g. "1001")
+    order_id = Column(String, nullable=False, index=True)
+
+    # Overall match status: "match" or "mismatch"
+    match_status = Column(String, nullable=False)
+
+    # Risk score (0-100)
+    risk_score = Column(Integer, nullable=False)
+
+    # Confidence score (average of both documents, may be null)
+    confidence_score = Column(Float, nullable=True)
+
+    # Full comparison result JSON for detail view
+    result_json = Column(JSONB, nullable=False)
 
     # Audit timestamp
     created_at = Column(DateTime(timezone=True), server_default=func.now())
