@@ -1,0 +1,86 @@
+.header {
+  height: 56px;
+  background-color: var(--bg-1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-6);
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.wordmark {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.input {
+  width: 220px;
+  background-color: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  padding: 6px 12px;
+  outline: none;
+  transition: border-color var(--dur-fast) var(--ease-smooth);
+}
+
+.input:focus {
+  border-color: var(--border-focus);
+}
+
+.syncBtn {
+  background-color: var(--bg-3);
+  color: var(--text-1);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: opacity var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth);
+}
+
+.syncBtn:hover {
+  opacity: 0.85;
+}
+
+.syncBtn:active {
+  transform: scale(0.98);
+}
+
+.pill {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: var(--text-xs);
+  padding: 4px 10px;
+  border-radius: 20px;
+  transition: opacity 200ms ease;
+}
+
+.pillLive {
+  color: var(--green);
+  background-color: var(--green-dim);
+}
+
+.pillDemo {
+  color: var(--amber);
+  background-color: var(--amber-dim);
+}

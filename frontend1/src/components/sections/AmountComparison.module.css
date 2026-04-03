@@ -1,0 +1,18 @@
+.section {
+  padding: 0 var(--space-12);
+  opacity: 0;
+  animation: revealUp var(--dur-slow) var(--ease-out) forwards;
+}
+
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.matchIndicator {
+  text-align: center;
+  color: var(--green);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  margin-bottom: var(--space-2);
+}

@@ -1,0 +1,174 @@
+.sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  background-color: var(--bg-1);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.summaryStrip {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-3);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dot {
+  margin: 0 var(--space-2);
+}
+
+.tabsContainer {
+  display: flex;
+  padding: 12px 20px;
+  gap: var(--space-1);
+}
+
+.tab {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  color: var(--text-3);
+  padding: 4px 12px;
+  border-radius: 100px;
+  transition: background-color var(--dur-fast) var(--ease-smooth),
+              color var(--dur-fast) var(--ease-smooth);
+}
+
+.tabActive {
+  background-color: var(--bg-3);
+  color: var(--text-1);
+}
+
+.searchContainer {
+  padding: 12px 20px;
+}
+
+.searchInput {
+  width: 100%;
+  background-color: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-1);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  padding: 12px 20px;
+  outline: none;
+  transition: border-color var(--dur-fast) var(--ease-smooth);
+}
+
+.searchInput:focus {
+  border-color: var(--border-focus);
+}
+
+.searchInput::placeholder {
+  color: var(--text-3);
+}
+
+.sectionLabel {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: var(--text-xs);
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 16px 20px 8px;
+}
+
+.list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.empty {
+  padding: 20px;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  color: var(--text-3);
+}
+
+.resultCard {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-smooth);
+  position: relative;
+  
+  opacity: 0;
+  animation: revealUp var(--dur-base) var(--ease-out) forwards;
+  animation-name: revealUp;
+}
+
+/* Ensure global keyframe is accessible */
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.resultCard:hover {
+  background-color: var(--bg-2);
+}
+
+.active {
+  background-color: var(--bg-3);
+}
+
+.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--accent-color);
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.row1, .row2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.orderId {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--text-1);
+}
+
+.miniBadge {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.date {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-3);
+}
+
+.riskScore {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: var(--text-xs);
+}
+
+@media (max-width: 1280px) {
+  .sidebar { width: 240px; }
+}

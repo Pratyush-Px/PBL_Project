@@ -1,0 +1,41 @@
+.detailViewWrapper {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Base mount entrance for entire DetailView container */
+.fadeIn {
+  animation: detailFadeIn 350ms var(--ease-out) forwards;
+}
+
+.fadeOut {
+  opacity: 1;
+  transform: translateY(0);
+  animation: detailFadeOut 150ms ease-in forwards;
+}
+
+@keyframes detailFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes detailFadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-6px); }
+}
+
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 0 var(--space-16);
+}
+
+.innerStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  /* Horizontal padding is mostly managed internally by sections */
+}

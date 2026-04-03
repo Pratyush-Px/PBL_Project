@@ -1,0 +1,33 @@
+.card {
+  background-color: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.header {
+  padding: 24px 28px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.title {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: var(--text-base);
+  color: var(--text-1);
+  margin: 0;
+}
+
+.sub {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  color: var(--text-3);
+  margin-top: var(--space-1);
+  margin-bottom: 0;
+}
+
+.content {
+  padding: 28px 32px;
+}

@@ -1,0 +1,139 @@
+/* ============================= */
+/* DESIGN SYSTEM — Quiet Precision */
+/* ============================= */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300&family=Geist+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap');
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+:root {
+  /* ── Typography ── */
+  --font-display: 'Fraunces', serif;
+  --font-ui: 'Inter', sans-serif;
+  --font-mono: 'Geist Mono', monospace;
+
+  /* ── Font Sizes ── */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.75rem;
+
+  /* ── Surfaces ── */
+  --bg-0: #ffffff;
+  --bg-1: rgba(255, 255, 255, 0.85);
+  --bg-2: #f9fafb;
+  --bg-3: #f3f4f6;
+  --bg-4: #e5e7eb;
+
+  /* ── Borders ── */
+  --border: #e5e7eb;
+  --border-focus: #a5b4fc;
+
+  /* ── Text ── */
+  --text-1: #111827;
+  --text-2: #4b5563;
+  --text-3: #9ca3af;
+
+  /* ── Semantic Colors ── */
+  --green: #16a34a;
+  --green-dim: rgba(22, 163, 74, 0.1);
+  --red: #dc2626;
+  --red-dim: rgba(220, 38, 38, 0.1);
+  --amber: #d97706;
+  --amber-dim: rgba(217, 119, 6, 0.1);
+  --blue: #4f46e5;
+  --blue-dim: rgba(79, 70, 229, 0.1);
+
+  /* ── Spacing ── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── Motion ── */
+  --dur-fast: 120ms;
+  --dur-base: 250ms;
+  --dur-slow: 500ms;
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Z-Index ── */
+  --z-modal: 100;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  font-family: var(--font-ui);
+  background-color: var(--bg-0);
+  color: var(--text-1);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-4);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-3);
+}
+
+/* ── Global reveal keyframe used by section-reveal and MetricCards ── */
+@keyframes revealUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-reveal {
+  opacity: 0;
+  animation: revealUp var(--dur-slow) var(--ease-out) forwards;
+}
