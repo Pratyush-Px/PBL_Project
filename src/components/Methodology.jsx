@@ -52,7 +52,7 @@ const Methodology = () => {
                         Generates discrepancy reports and a match confidence score.
                         Provides downloadable CSV validation reports.
                     </p>
-                    <a href="https://pbl-projectfrontend.onrender.com" className="demo-btn">VIEW LIVE DEMO</a>
+                    <a href="https://auditly-qfq7.onrender.com" className="demo-btn">VIEW LIVE DEMO</a>
                 </div>
             </div>
 
