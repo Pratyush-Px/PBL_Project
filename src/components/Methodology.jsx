@@ -52,24 +52,7 @@ const Methodology = () => {
                         Generates discrepancy reports and a match confidence score.
                         Provides downloadable CSV validation reports.
                     </p>
-                    <div className="card-image-container" onClick={() => setSelectedImage(`${import.meta.env.BASE_URL}images/end_to_end.png`)}>
-                        <img src={`${import.meta.env.BASE_URL}images/end_to_end.png`} alt="End-to-End Process Flow" className="card-thumbnail" />
-                        <span className="expand-hint">Click to expand</span>
-                    </div>
-                    <a href="https://auditly-qfq7.onrender.com/" className="demo-btn">VIEW LIVE DEMO</a>
-                </div>
-            </div>
-
-            {/* Architecture Diagram Showcase */}
-            <div className="architecture-showcase">
-                <h3 className="architecture-title">System Architecture Overview</h3>
-                <p className="architecture-desc">
-                    A layered architecture connecting the React frontend and file system entry points
-                    to the FastAPI backend, service layer (OCR, Comparison, Risk), and PostgreSQL data layer.
-                </p>
-                <div className="architecture-image-container" onClick={() => setSelectedImage(`${import.meta.env.BASE_URL}images/architecture.png`)}>
-                    <img src={`${import.meta.env.BASE_URL}images/architecture.png`} alt="System Architecture Diagram" className="architecture-img" />
-                    <span className="expand-hint">Click to expand</span>
+                    <a href="https://pbl-projectfrontend.onrender.com" className="demo-btn">VIEW LIVE DEMO</a>
                 </div>
             </div>
 
