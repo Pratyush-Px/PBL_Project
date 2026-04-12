@@ -1,0 +1,48 @@
+{
+  "evaluation_timestamp": "2026-02-07T11:39:44.782554",
+  "aggregate_metrics": {
+    "character_accuracy": 0.9886712749615976,
+    "word_accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0
+  },
+  "mode_comparison": {
+    "standard": {
+      "character_accuracy": 0.9886712749615976,
+      "word_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0
+    },
+    "threshold": {
+      "character_accuracy": 0.9886712749615976,
+      "word_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0
+    }
+  },
+  "per_image_results": [
+    {
+      "image_name": "sample1.png",
+      "status": "success",
+      "character_accuracy": 0.989247311827957,
+      "word_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "avg_confidence": 95.85714285714286
+    },
+    {
+      "image_name": "sample2.png",
+      "status": "success",
+      "character_accuracy": 0.9880952380952381,
+      "word_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "avg_confidence": 95.27272727272727
+    }
+  ]
+}
